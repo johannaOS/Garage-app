@@ -27,29 +27,7 @@ namespace Garage_App
             {
                 Console.Write(option);
             }
-            Console.WriteLine();
         } 
-        public int GetUserSelection()
-        {
-            int userSelection = 0;
-            bool UserInputSuccess = false;
-            while (!UserInputSuccess)
-            {
-                try
-                {
-                    if (int.TryParse(Console.ReadLine(), out userSelection) && userSelection >= 0 && userSelection < NrMenuOptions)
-                        return userSelection;
-                    else
-                        throw new ArgumentException("Du måste ange ett giltigt val!\n");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-            return userSelection;
-        }
-
     }
 
     public class Main : Menu
