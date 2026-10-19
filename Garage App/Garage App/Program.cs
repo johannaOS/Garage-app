@@ -105,20 +105,38 @@ static void CheckIn(Garage garage)
     int availableSpaces = garage.GetAvailableSpaces();
     if (availableSpaces > 0)
     {
-        Console.WriteLine("Vilket typ av fordon vill du checka in?\n0: Motorcycle\t9: Exit"); //fyll på här när nya Vehicleklasser skapats
+        Console.WriteLine("Vilket typ av fordon vill du checka in?\n1: Motorcycle\t2: Airplane\t3: Car\t4: Bus\t5: Boat\t0: Exit"); //fyll på här när nya Vehicleklasser skapats
         bool userAnswerSuccess = true;
+        string userChoice;
         while (userAnswerSuccess)
         {
-            switch (Console.ReadLine())
+            userChoice = Console.ReadLine().Trim();
+            switch (userChoice)
             {
                 case "0":
+                    userAnswerSuccess = false;
+                    break;
+                case "1":
                     Console.WriteLine("Låt oss checka in din mc!");
                     garage.CheckInVehicle(
-                        new MotorCycle("abc123", "blue", 2, "gas")
+                        CreateVehicle(userChoice)
                         );
                     userAnswerSuccess = false;
                     break;
-                case "9":
+                case "2":
+                    Console.WriteLine("Låt oss checka in ditt flygplan!");
+                    userAnswerSuccess = false;
+                    break;
+                case "3":
+                    Console.WriteLine("Låt oss checka in din bil!");
+                    userAnswerSuccess = false;
+                    break;
+                case "4":
+                    Console.WriteLine("Låt oss checka in din buss!");
+                    userAnswerSuccess = false;
+                    break;
+                case "5":
+                    Console.WriteLine("Låt oss checka in din båt!");
                     userAnswerSuccess = false;
                     break;
                 default:
@@ -127,9 +145,85 @@ static void CheckIn(Garage garage)
             }
         }
     }
-
 }
 
+static Vehicle CreateVehicle(string choice)
+{
+    switch (choice)
+    {
+        case "1": //motorcykel
+            string regNo = ValidateRegNr();
+            string color = ValidateColor();
+            int? nrOfWheels = ValidateNrOfWheels();
+
+            //instanciera en ny motorcykel
+            try
+            { 
+                var motorcycle = new MotorCycle(regNo, color, nrOfWheels);
+                return motorcycle;
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            break;
+    /*    case "2":
+            break;
+        case "3":
+            break;
+        case "4":
+            break;
+        case "5":
+            break;*/
+        default:
+            break;
+    }
+    return null;
+}
+
+static string ValidateRegNr()
+{
+    Console.Write("Ange registreringsnummer (obligatoriskt): ");
+    while (true)
+    {
+        string _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
+        try
+        {
+            if (String.IsNullOrEmpty(_regNr) || _regNr.Length > 12)
+                throw new ArgumentException("Du måste ange ett giltigt registreringsnummer!");
+            return _regNr;
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message); }
+    }
+}
+
+static string ValidateColor()
+{
+    Console.Write("Ange färg (obligatoriskt): ");
+    while (true)
+    {
+        string color = Console.ReadLine().Trim().Replace(" ", "").ToLower();
+        try
+        {
+            if (String.IsNullOrEmpty(color) || color.Length > 200)
+                throw new ArgumentException("Du måste ange en giltig färg!");
+            return color;
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message); }
+    }
+}
+static int? ValidateNrOfWheels()
+{
+    Console.Write("Ange antal hjul (tryck 0 för att hoppa över denna): ");
+    int nrOfwheels;
+    while (true)
+    {
+        string wheels = Console.ReadLine().Trim().Replace(" ", "");
+        if (wheels == "0")
+            return null;
+        if (int.TryParse(wheels, out nrOfwheels) && nrOfwheels > 1 && nrOfwheels < 11)
+            return nrOfwheels;
+        else
+            Console.WriteLine("Du måste ange ett giltigt antal hjul!");  
+    }
+}
 static void CheckOut(Garage garage)
 {
     bool requireAnswer = true;

@@ -21,7 +21,7 @@ namespace Garage_App
         public int GetAvailableSpaces()
         {
             int occupiedSpaces = CheckedInVehicles.Count(v => v != null);
-            Console.WriteLine($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser.");
+            Console.Write($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser.");
             return Spaces - occupiedSpaces;
         }
 
