@@ -38,12 +38,16 @@ namespace Garage_App
             //Get garage name
             Console.WriteLine("(Tryck 9 för att komma tillbaka till huvudmenyn)\nNamnge ditt garage:");
             string? name = Console.ReadLine();
+            while (String.IsNullOrEmpty(name)) {
+                Console.WriteLine("Garaget måste ha ett namn!");
+                name = Console.ReadLine();
+            }
             //Cancel if user chose to get back to menue
             if (name != "9")
             {   // Get amount of spaces
                 Console.WriteLine($"Ange hur många parkeringsplatser som finns i {name}");
                 int parkingSpaces;
-                while (!int.TryParse(Console.ReadLine(), out parkingSpaces))
+                while (!int.TryParse(Console.ReadLine(), out parkingSpaces) || parkingSpaces <= 0)
                     Console.WriteLine("Du måste ange ett giltigt antal!");
                 //Confirm amount of spaces
                 Console.WriteLine($"Du har angivit {parkingSpaces} parkeringsplatser. Stämmer det? (y/n)");

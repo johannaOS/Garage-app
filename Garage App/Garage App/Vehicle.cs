@@ -12,7 +12,7 @@ namespace Garage_App
         public int? ParkingSquaresNeeded { get; set; }
         public Vehicle(string regNr, string color, int? parkingSquaresNeeded = null)
         {
-            RegNr = regNr;
+            RegNr = regNr.Trim().Replace(" ","").ToUpper();
             Color = color;
             ParkingSquaresNeeded = parkingSquaresNeeded;
         }

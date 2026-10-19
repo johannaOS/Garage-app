@@ -8,7 +8,7 @@ namespace Garage_App
     {
         public int Id { get; }
         public int Spaces { get; }
-        public Vehicle[] CheckedInVehicles { get; }
+        private Vehicle[] CheckedInVehicles { get; }
         public string? Name { get; set; }
         public Garage (string? name, int spaces)
         {
@@ -30,7 +30,7 @@ namespace Garage_App
             //check that vehicle isn't already in since all vehicle registration numbers are unique
             bool isUnique = true;
             int index = -1;
-            for (int i = 0; i < CheckedInVehicles.Length; i++)
+            for (int i = 0; i < Spaces; i++)
             {
                 if (CheckedInVehicles[i] is not null)
                 {
@@ -52,5 +52,33 @@ namespace Garage_App
             else 
                 Console.WriteLine($"Det här fordonet är redan registrerat på plats {index}.\n");
         }
+
+        public void CheckOut()
+        {
+            //Get vehicle registration No.
+            Console.WriteLine("Ange registreringsnumret på fordonet du vill checka ut:");
+            string? regNo = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
+            if (String.IsNullOrEmpty(regNo))
+                throw new ArgumentException("Ange ett giltigt registreringsnummer!"); //hantera while.. i anropet
+            //Search for vehicle in garage
+            int match = -1;
+            for (int i = 0; i < Spaces; i++) {
+                if (CheckedInVehicles[i] is not null)
+                {
+                    if (regNo == CheckedInVehicles[i].RegNr.ToUpper())
+                    { match = i; break; }
+                }
+            }
+            if (match >= 0)
+            {
+                Console.WriteLine($"Your vehicle {regNo} is in this garage on spot {match}\n");
+            }
+            else
+            {
+                Console.WriteLine($"Your vehicle {regNo} is not in this garage!\n");
+            }
+
+        }
+
     }
 }

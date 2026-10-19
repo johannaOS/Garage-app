@@ -1,4 +1,5 @@
 ﻿using Garage_App;
+using System.ComponentModel.Design;
 var MainMenu = new Main()
 {
     WelcomeMessage = "******* Välkommen till Epic Garage App! ********\n",
@@ -86,7 +87,7 @@ static void RunGarageMenu(Garage selectedGarage)
                 CheckIn(selectedGarage);
                 break;
             case "2":
-                Console.WriteLine("Du angav 2");
+                CheckOut(selectedGarage);
                 break;
             case "3":
                 Console.WriteLine("Du angav 3");
@@ -129,6 +130,19 @@ static void CheckIn(Garage garage)
 
 }
 
-
+static void CheckOut(Garage garage)
+{
+    bool requireAnswer = true;
+    while (requireAnswer)
+    {
+        try {
+            garage.CheckOut();
+            requireAnswer = false;
+        }
+        catch (Exception ex) {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
 
 
