@@ -4,8 +4,9 @@ using System.Text;
 
 namespace Garage_App
 {
-    public class Vehicle
+    public abstract class Vehicle
     {
+        public string? Type;
         public string RegNr { get; }
         public string Color { get; }
         public int? ParkingSquaresNeeded { get; set; }
@@ -25,7 +26,7 @@ namespace Garage_App
         {
             NrWheels = nrWheels;
             FuelType = fuelType;
-
+            Type = "Motorcycle";
         }
     }
 

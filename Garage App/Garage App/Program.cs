@@ -1,16 +1,16 @@
 ﻿using Garage_App;
 var MainMenu = new Main()
 {
-    WelcomeMessage = "******* Välkommen till Epic Garage App! Vad vill du göra? ********\n",
+    WelcomeMessage = "******* Välkommen till Epic Garage App! ********\n",
     NrMenuOptions = 3,
     MenuOptions = new List<string> { "0: avsluta programmet\t", "1: Skapa ett nytt garage\t", "2: Hantera ett av mina garage\n" }
 };
 
 var myGarages = new List<Garage>();
 bool programOn = true;
-Console.WriteLine(MainMenu.WelcomeMessage);
 while (programOn)
 {
+    Console.WriteLine(MainMenu.WelcomeMessage);
     MainMenu.DisplayOptions();
 
     switch (Console.ReadLine())
@@ -72,9 +72,9 @@ static void RunGarageMenu(Garage selectedGarage)
     };
 
     bool MenuOn = true;
-    Console.WriteLine(garageMenu.WelcomeMessage);
     while (MenuOn)
     {
+        Console.WriteLine(garageMenu.WelcomeMessage);
         garageMenu.DisplayOptions();
 
         switch (Console.ReadLine())
@@ -83,7 +83,7 @@ static void RunGarageMenu(Garage selectedGarage)
                 MenuOn = false;
                 break;
             case "1":
-                Console.WriteLine("Du angav 1.");
+                CheckIn(selectedGarage);
                 break;
             case "2":
                 Console.WriteLine("Du angav 2");
@@ -94,6 +94,36 @@ static void RunGarageMenu(Garage selectedGarage)
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
                 break;
+        }
+    }
+
+}
+
+static void CheckIn(Garage garage)
+{
+    int availableSpaces = garage.GetAvailableSpaces();
+    if (availableSpaces > 0)
+    {
+        Console.WriteLine("Vilket typ av fordon vill du checka in?\n0: Motorcycle\t9: Exit"); //fyll på här när nya Vehicleklasser skapats
+        bool userAnswerSuccess = true;
+        while (userAnswerSuccess)
+        {
+            switch (Console.ReadLine())
+            {
+                case "0":
+                    Console.WriteLine("Låt oss checka in din mc!");
+                    garage.CheckInVehicle(
+                        new MotorCycle("abc123", "blue", 2, "gas")
+                        );
+                    userAnswerSuccess = false;
+                    break;
+                case "9":
+                    userAnswerSuccess = false;
+                    break;
+                default:
+                    Console.WriteLine("Ange ett giltigt val!");
+                    break;
+            }
         }
     }
 

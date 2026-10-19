@@ -8,12 +8,49 @@ namespace Garage_App
     {
         public int Id { get; }
         public int Spaces { get; }
+        public Vehicle[] CheckedInVehicles { get; }
         public string? Name { get; set; }
         public Garage (string? name, int spaces)
         {
             Spaces = spaces;
             Name = name;
+            CheckedInVehicles = new Vehicle[spaces];
             Console.WriteLine($"Du har skapat ett garage med namn \"{Name}\" som innehåller {Spaces} parkeringsplatser.\n");
+        }
+
+        public int GetAvailableSpaces()
+        {
+            int occupiedSpaces = CheckedInVehicles.Count(v => v != null);
+            Console.WriteLine($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser.");
+            return Spaces - occupiedSpaces;
+        }
+
+        public void CheckInVehicle(Vehicle vehicle)
+        {
+            //check that vehicle isn't already in since all vehicle registration numbers are unique
+            bool isUnique = true;
+            int index = -1;
+            for (int i = 0; i < CheckedInVehicles.Length; i++)
+            {
+                if (CheckedInVehicles[i] is not null)
+                {
+                    if (CheckedInVehicles[i].RegNr == vehicle.RegNr)
+                    {
+                        isUnique = false;
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (isUnique)
+            {
+                int index2 = Array.IndexOf(CheckedInVehicles, null);
+                CheckedInVehicles[index2] = vehicle;
+                Console.WriteLine($"Din {vehicle.Type} är incheckad på parkeringsplats {index2}.\n");
+            }
+            else 
+                Console.WriteLine($"Det här fordonet är redan registrerat på plats {index}.\n");
         }
     }
 }
