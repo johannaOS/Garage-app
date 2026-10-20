@@ -20,10 +20,11 @@ namespace Garage_App
             Console.WriteLine("-------------------------------------------------------------------------------\n");
         }
 
-        public int GetAvailableSpaces()
+        public int GetAvailableSpaces(bool print = true)
         {
             int occupiedSpaces = CheckedInVehicles.Count(v => v != null);
-            Console.Write($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser. ");
+            if (print)
+                Console.WriteLine($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser. ");
             return Spaces - occupiedSpaces;
         }
 
@@ -75,7 +76,7 @@ namespace Garage_App
         }
         public int SearchByRegNr()
         {
-            if (GetAvailableSpaces() == Spaces)
+            if (GetAvailableSpaces(false) == Spaces)
                 throw new ArgumentException($"Garaget {Name} är tomt!");
             //Get vehicle registration No.
             Console.WriteLine("Ange registreringsnumret på fordonet du vill checka ut:");
@@ -135,6 +136,62 @@ namespace Garage_App
             Console.WriteLine($"{Name} innehåller:\nMotorcyklar: {countVehicleTypes[0]}\nFlygplan: {countVehicleTypes[1]}\nBilar: {countVehicleTypes[2]}\nBussar: {countVehicleTypes[3]}\nBåtar: {countVehicleTypes[4]}\n");
 
 
+        }
+
+        public Vehicle[] SearchInRegNr()
+        {
+            if (CheckedInVehicles.Count(v => v != null) == 0)
+                throw new ArgumentException($"Det finns inga fordon i {Name}");
+            //Hämta sökfras
+            Console.Write("Ange din sökfras: ");
+            string userInput = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
+            while (String.IsNullOrEmpty(userInput))
+            {
+                Console.WriteLine("Ange giltigt registreringsnummer!");
+                userInput = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
+            }
+            // Kolla matchning
+            var ResultList = new Vehicle[Spaces - GetAvailableSpaces(false)]; //largest possible array
+            int index = 0;
+            foreach (Vehicle v in CheckedInVehicles)
+            {
+                if (v is not null){
+                    if (v.RegNr.Contains(userInput))
+                    {
+                        ResultList[index] = v;
+                        index++;
+                    }
+                }
+            }
+            return ResultList[0..index];
+        }
+        public Vehicle[] SearchColor()
+        {
+            if (CheckedInVehicles.Count(v => v != null) == 0)
+                throw new ArgumentException($"Det finns inga fordon i {Name}");
+            //Hämta sökfras
+            Console.Write("Ange din sökfras: ");
+            string userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
+            while (String.IsNullOrEmpty(userInput))
+            {
+                Console.WriteLine("Ange giltig sökfras!");
+                userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
+            }
+            // Kolla matchning
+            var ResultList = new Vehicle[Spaces - GetAvailableSpaces(false)]; //largest possible array
+            int index = 0;
+            foreach (Vehicle v in CheckedInVehicles)
+            {
+                if (v is not null)
+                {
+                    if (v.Color.Contains(userInput))
+                    {
+                        ResultList[index] = v;
+                        index++;
+                    }
+                }
+            }
+            return ResultList[0..index];
         }
 
     }

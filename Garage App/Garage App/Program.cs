@@ -114,7 +114,8 @@ static void RunGarageMenu(Garage selectedGarage)
                 selectedGarage.ListParkedVehicles();
                 break;
             case "4":
-                RunSearchMenu(selectedGarage);
+                try { RunSearchMenu(selectedGarage); }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
                 break;
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
@@ -126,18 +127,22 @@ static void RunGarageMenu(Garage selectedGarage)
 
 static void RunSearchMenu(Garage selectedGarage)
 {
+    //Kolla att garaget inte är tomt
+    if (selectedGarage.GetAvailableSpaces(false) == selectedGarage.Spaces)
+        throw new ArgumentException($"{selectedGarage.Name} är tomt!");
+
     var searchMenu = new Menu()
     {
         WelcomeMessage = $"************** Vad vill du söka efter i \"{selectedGarage.Name}\"? **************\n",
         NrMenuOptions = 3,
-        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Sök på registreringsskylt\t", "2: Fri söktext\n" }
+        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Sök på registreringsskylt\t", "2: Övrigt sök\n" }
     };
 
     bool MenuOn = true;
     while (MenuOn)
     {
         Console.WriteLine(searchMenu.WelcomeMessage);
-        searchMenu.DisplayOptions();
+        searchMenu.DisplayOptions(false);
 
         switch (Console.ReadLine())
         {
@@ -145,15 +150,75 @@ static void RunSearchMenu(Garage selectedGarage)
                 MenuOn = false;
                 break;
             case "1":
+                try {
+                    selectedGarage.SearchByRegNr(); }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
                 break;
-  /*          case "2":
-                CheckOut(selectedGarage);
+            case "2":
+                RunSearchInVehiclesMenu(selectedGarage);
                 break;
-            case "3":
-                selectedGarage.ListParkedVehicles();
+            default:
+                Console.WriteLine("Ange ett giltigt alternativ!");
+                break;
+        }
+    }
+}
+static void RunSearchInVehiclesMenu(Garage selectedGarage)
+{
+    var searchMenu = new Menu()
+    {
+        WelcomeMessage = $"************** Välj vad du vill söka på i \"{selectedGarage.Name}\" **************\n",
+        NrMenuOptions = 3,
+        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Registreringsnummer\t", "2: Färg\t", "3: Parkeringsrutor\t", "4: Drivmedel\n" }
+    };
+
+    bool MenuOn = true;
+    while (MenuOn)
+    {
+        Console.WriteLine(searchMenu.WelcomeMessage);
+        searchMenu.DisplayOptions(false);
+
+        switch (Console.ReadLine())
+        {
+            case "0":
+                MenuOn = false;
+                break;
+            case "1":
+                // T ex alla registreringsnummer som innehåller "f"
+                var searchRegResult = selectedGarage.SearchInRegNr();
+                if (searchRegResult.Length == 0)
+                {
+                    Console.WriteLine("Din sökning gav ingen match!\n");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Dina matchningar:");
+                    foreach (var item in searchRegResult)
+                        Console.WriteLine(item.Type + ": " + item.RegNr);
+                    Console.WriteLine();
+                    break;
+                }
+            case "2":
+                var searchColorResult = selectedGarage.SearchColor();
+                if (searchColorResult.Length == 0)
+                {
+                    Console.WriteLine("Din sökning gav ingen match!\n");
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Dina matchningar:");
+                    foreach (var item in searchColorResult)
+                        Console.WriteLine(item.Type + ": " + item.RegNr);
+                    Console.WriteLine();
+                    break;
+                }
+  /*          case "3":
+                //Metod för att få färg
                 break;
             case "4":
-                RunSearchMenu();
+                //Metod för att få Parkeringsrutor
                 break;*/
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");

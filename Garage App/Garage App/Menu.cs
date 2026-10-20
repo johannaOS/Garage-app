@@ -22,9 +22,10 @@ namespace Garage_App
             } 
         }
 
-        public void DisplayOptions()
+        public void DisplayOptions(bool prompt = true)
         {
-            Console.WriteLine("Vad vill du göra?");
+            if (prompt)
+                Console.WriteLine("Vad vill du göra?");
             foreach (string option in MenuOptions)
             {
                 Console.Write(option);
