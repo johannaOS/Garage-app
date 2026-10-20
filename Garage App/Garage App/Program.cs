@@ -2,7 +2,7 @@
 using System.ComponentModel.Design;
 var MainMenu = new Main()
 {
-    WelcomeMessage = "******* Välkommen till Epic Garage App! ********\n",
+    WelcomeMessage = "************** Välkommen till Epic Garage App! ***************\n",
     NrMenuOptions = 3,
     MenuOptions = new List<string> { "0: avsluta programmet\t", "1: Skapa ett nytt garage\t", "2: Hantera ett av mina garage\n" }
 };
@@ -44,9 +44,8 @@ static Garage SelectGarage(List<Garage> myGarages)
     foreach (var garage in myGarages)
         Console.Write($"{myGarages.IndexOf(garage)}: {garage.Name}\t");
     Console.WriteLine();
-    int userSelection = 0;
-    bool UserInputSuccess = false;
-    while (!UserInputSuccess)
+    int userSelection = -1;
+    while (true)
     {
         try
         {
@@ -60,16 +59,15 @@ static Garage SelectGarage(List<Garage> myGarages)
             Console.WriteLine(ex.Message);
         }
     }
-    return myGarages[userSelection];
 }
 
 static void RunGarageMenu(Garage selectedGarage)
 {
     var garageMenu = new Menu()
     {
-        WelcomeMessage = $"******* Hantera ditt garage \"{selectedGarage.Name}\"! *******\n",
+        WelcomeMessage = $"************** Hantera ditt garage \"{selectedGarage.Name}\"! **************\n",
         NrMenuOptions = 4,
-        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Checka in\t", "2: Checka ut\t", "3: Sök bland dina fordon\n" }
+        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Checka in\t", "2: Checka ut\t", "3: Lista alla fordon\t", "4: Sök bland dina fordon\n" }
     };
 
     bool MenuOn = true;
@@ -90,7 +88,10 @@ static void RunGarageMenu(Garage selectedGarage)
                 CheckOut(selectedGarage);
                 break;
             case "3":
-                Console.WriteLine("Du angav 3");
+                selectedGarage.ListParkedVehicles();
+                break;
+            case "4":
+                Console.WriteLine("Du angav 4");
                 break;
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
@@ -106,38 +107,50 @@ static void CheckIn(Garage garage)
     if (availableSpaces > 0)
     {
         Console.WriteLine("Vilket typ av fordon vill du checka in?\n1: Motorcycle\t2: Airplane\t3: Car\t4: Bus\t5: Boat\t0: Exit"); //fyll på här när nya Vehicleklasser skapats
-        bool userAnswerSuccess = true;
+        bool userAnswerSuccess = false;
         string userChoice;
-        while (userAnswerSuccess)
+        while (!userAnswerSuccess)
         {
             userChoice = Console.ReadLine().Trim();
             switch (userChoice)
             {
                 case "0":
-                    userAnswerSuccess = false;
+                    userAnswerSuccess = true;
                     break;
                 case "1":
                     Console.WriteLine("Låt oss checka in din mc!");
                     garage.CheckInVehicle(
                         CreateVehicle(userChoice)
                         );
-                    userAnswerSuccess = false;
+                    userAnswerSuccess = true;
                     break;
                 case "2":
                     Console.WriteLine("Låt oss checka in ditt flygplan!");
-                    userAnswerSuccess = false;
+                    garage.CheckInVehicle(
+                        CreateVehicle(userChoice)
+                        );
+                    userAnswerSuccess = true;
                     break;
                 case "3":
                     Console.WriteLine("Låt oss checka in din bil!");
-                    userAnswerSuccess = false;
+                    garage.CheckInVehicle(
+                        CreateVehicle(userChoice)
+                        );
+                    userAnswerSuccess = true;
                     break;
                 case "4":
                     Console.WriteLine("Låt oss checka in din buss!");
-                    userAnswerSuccess = false;
+                    garage.CheckInVehicle(
+                        CreateVehicle(userChoice)
+                        );
+                    userAnswerSuccess = true;
                     break;
                 case "5":
                     Console.WriteLine("Låt oss checka in din båt!");
-                    userAnswerSuccess = false;
+                    garage.CheckInVehicle(
+                        CreateVehicle(userChoice)
+                        );
+                    userAnswerSuccess = true;
                     break;
                 default:
                     Console.WriteLine("Ange ett giltigt val!");
@@ -152,26 +165,73 @@ static Vehicle CreateVehicle(string choice)
     switch (choice)
     {
         case "1": //motorcykel
-            string regNo = ValidateRegNr();
-            string color = ValidateColor();
-            int? nrOfWheels = ValidateNrOfWheels();
+            {
+                string regNr = ValidateRegNr();
+                string color = ValidateColor();
+                int? nrOfWheels = ValidateNrOfWheels();
 
-            //instanciera en ny motorcykel
-            try
-            { 
-                var motorcycle = new MotorCycle(regNo, color, nrOfWheels);
-                return motorcycle;
+                //instanciera en ny motorcykel
+                try
+                {
+                    var motorcycle = new MotorCycle(regNr, color, nrOfWheels);
+                    return motorcycle;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                break;
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
-            break;
-    /*    case "2":
-            break;
-        case "3":
-            break;
-        case "4":
-            break;
-        case "5":
-            break;*/
+        case "2": //flygplan
+            {
+                string regNr = ValidateRegNr();
+                string color = ValidateColor();
+                double length = ValidateLength();
+
+                try
+                {
+                    var airplane = new Airplane(regNr, color, length);
+                    return airplane;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                break;
+            }
+        case "3": //bil
+            {
+                string regNr = ValidateRegNr();
+                string color = ValidateColor();
+
+                try
+                {
+                    var car = new Car(regNr, color);
+                    return car;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                    break;
+            }
+        case "4": //buss
+            {
+                string regNr = ValidateRegNr();
+                string color = ValidateColor();
+
+                try
+                {
+                    var bus = new Bus(regNr, color);
+                    return bus;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                break;
+            }
+        case "5": //båt
+            {
+                string regNr = ValidateRegNr();
+                string color = ValidateColor();
+
+                try
+                {
+                    var boat = new Boat(regNr, color);
+                    return boat;
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                break;
+            }
         default:
             break;
     }
@@ -222,6 +282,19 @@ static int? ValidateNrOfWheels()
             return nrOfwheels;
         else
             Console.WriteLine("Du måste ange ett giltigt antal hjul!");  
+    }
+}
+static double ValidateLength()
+{
+    Console.Write("Ange längd på fordonet (obligatorisk): ");
+    double length;
+    while (true)
+    {
+        string input = Console.ReadLine().Trim().Replace(" ", "");
+        if (double.TryParse(input, out length) && length > 1 && length <100 )
+            return length;
+        else
+            Console.WriteLine("Du måste ange en giltig längd!");
     }
 }
 static void CheckOut(Garage garage)

@@ -40,17 +40,17 @@ namespace Garage_App
             if (_nrWheels < 2 || _nrWheels > 6)
                 throw new ArgumentException("Amount of wheels needs to be between 2 and 6!");
             NrWheels = _nrWheels;
-            Type = "Motorcycle";
+            Type = "Motorcykel";
         }
     }
 
     public class Airplane : Vehicle
     {
         public double LengthInMeters { get; set; }
-        public Airplane(string regNr, string color, int length, int? parkingSquaresNeeded = null, string? fuelType = null) : base(regNr, color, parkingSquaresNeeded, fuelType)
+        public Airplane(string regNr, string color, double length, int? parkingSquaresNeeded = null, string? fuelType = null) : base(regNr, color, parkingSquaresNeeded, fuelType)
         {
             LengthInMeters = length;
-            Type = "Airplane";
+            Type = "Flygplan";
         }
     }
 
@@ -60,7 +60,7 @@ namespace Garage_App
         public Car(string regNr, string color, int seats = 5, int? parkingSquaresNeeded = null, string? fuelType = null) : base(regNr, color, parkingSquaresNeeded, fuelType)
         {
             NoOfSeats = seats;
-            Type = "Car";
+            Type = "Bil";
         }
     }
     public class Bus : Vehicle
@@ -69,7 +69,7 @@ namespace Garage_App
         public Bus(string regNr, string color, int seats = 20, int? parkingSquaresNeeded = null, string? fuelType = null) : base(regNr, color, parkingSquaresNeeded, fuelType)
         {
             NoOfSeats = seats;
-            Type = "Bus";
+            Type = "Buss";
         }
     }
 
@@ -79,7 +79,7 @@ namespace Garage_App
         public Boat(string regNr, string color, int noOfCylinders = 1, int? parkingSquaresNeeded = null, string? fuelType = null) : base(regNr, color, parkingSquaresNeeded, fuelType)
         {
             NoOfCylinders = noOfCylinders;
-            Type = "Boat";
+            Type = "Båt";
         }
     }
 }

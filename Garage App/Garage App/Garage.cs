@@ -15,13 +15,15 @@ namespace Garage_App
             Spaces = spaces;
             Name = name;
             CheckedInVehicles = new Vehicle[spaces];
-            Console.WriteLine($"Du har skapat ett garage med namn \"{Name}\" som innehåller {Spaces} parkeringsplatser.\n");
+            Console.WriteLine("-------------------------------------------------------------------------------");
+            Console.WriteLine($"| Du har skapat ett garage med namn \"{Name}\" som innehåller {Spaces} parkeringsplatser. |");
+            Console.WriteLine("-------------------------------------------------------------------------------\n");
         }
 
         public int GetAvailableSpaces()
         {
             int occupiedSpaces = CheckedInVehicles.Count(v => v != null);
-            Console.Write($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser.");
+            Console.Write($"Det finns {Spaces - occupiedSpaces} av {Spaces} lediga parkeringsplatser. ");
             return Spaces - occupiedSpaces;
         }
 
@@ -47,10 +49,12 @@ namespace Garage_App
             {
                 int index2 = Array.IndexOf(CheckedInVehicles, null);
                 CheckedInVehicles[index2] = vehicle;
-                Console.WriteLine($"Din {vehicle.Type} är incheckad på parkeringsplats {index2}.\n");
+                Console.WriteLine("-------------------------------------------------------------");
+                Console.WriteLine($"| Din {vehicle.Type} är incheckad på parkeringsplats {index2}. |");
+                Console.WriteLine("-------------------------------------------------------------\n");
             }
             else 
-                Console.WriteLine($"Det här fordonet är redan registrerat på plats {index}.\n");
+                Console.WriteLine($"!! Det här fordonet är redan registrerat på plats {index}!!\n");
         }
 
         public void CheckOut()
@@ -61,22 +65,57 @@ namespace Garage_App
             if (String.IsNullOrEmpty(regNo))
                 throw new ArgumentException("Ange ett giltigt registreringsnummer!"); //hantera while.. i anropet
             //Search for vehicle in garage
-            int match = -1;
+            bool match = false;
             for (int i = 0; i < Spaces; i++) {
                 if (CheckedInVehicles[i] is not null)
                 {
                     if (regNo == CheckedInVehicles[i].RegNr.ToUpper())
-                    { match = i; break; }
+                    { 
+                        match = true;
+                        Console.WriteLine("-----------------------------------------------------------------");
+                        Console.WriteLine($"| Din {CheckedInVehicles[i].Type} med regNr {regNo} har blivit utcheckat från {Name} |");
+                        Console.WriteLine("-----------------------------------------------------------------\n");
+                        CheckedInVehicles[i] = null;
+                        break; }
                 }
             }
-            if (match >= 0)
+            if (!match)
             {
-                Console.WriteLine($"Your vehicle {regNo} is in this garage on spot {match}\n");
+                Console.WriteLine($"!! Ditt fordon {regNo} finns inte i det här garaget!!\n");
             }
-            else
-            {
-                Console.WriteLine($"Your vehicle {regNo} is not in this garage!\n");
+
+        }
+        public void ListParkedVehicles()
+        {
+            GetAvailableSpaces();
+            int[] countVehicleTypes = new int[5];
+            foreach (var vehicle in CheckedInVehicles) {
+                if (vehicle is not null) {
+                    switch (vehicle.Type)
+                    {
+                        case "Motorcykel":
+                            countVehicleTypes[0]++;
+                            break;
+                        case "Flygplan":
+                            countVehicleTypes[1]++;
+                            break;
+                        case "Bil":
+                            countVehicleTypes[2]++;
+                                break;
+                        case "Buss":
+                            countVehicleTypes[3]++;
+                            break;
+                        case "Båt":
+                            countVehicleTypes[4]++;
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
             }
+            Console.WriteLine($"{Name} innehåller:\nMotorcyklar: {countVehicleTypes[0]}\nFlygplan: {countVehicleTypes[1]}\nBilar: {countVehicleTypes[2]}\nBussar: {countVehicleTypes[3]}\nBåtar: {countVehicleTypes[4]}\n");
+
 
         }
 
