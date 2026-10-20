@@ -10,7 +10,7 @@ namespace Garage_App
         public int Spaces { get; }
         private Vehicle[] CheckedInVehicles { get; }
         public string? Name { get; set; }
-        public Garage (string? name, int spaces)
+        public Garage(string? name, int spaces)
         {
             Spaces = spaces;
             Name = name;
@@ -44,7 +44,7 @@ namespace Garage_App
                     }
                 }
             }
-            
+
             if (isUnique)
             {
                 int index2 = Array.IndexOf(CheckedInVehicles, null);
@@ -53,37 +53,55 @@ namespace Garage_App
                 Console.WriteLine($"| Din {vehicle.Type} är incheckad på parkeringsplats {index2}. |");
                 Console.WriteLine("-------------------------------------------------------------\n");
             }
-            else 
+            else
                 Console.WriteLine($"!! Det här fordonet är redan registrerat på plats {index}!!\n");
         }
 
         public void CheckOut()
         {
+            try
+            {
+                int matchIndex = SearchByRegNr();
+                Console.WriteLine("-----------------------------------------------------------------");
+                Console.WriteLine($"| Din {CheckedInVehicles[matchIndex].Type} med regNr {CheckedInVehicles[matchIndex].RegNr} har blivit utcheckat från {Name} |");
+                Console.WriteLine("-----------------------------------------------------------------\n");
+                CheckedInVehicles[matchIndex] = null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+        public int SearchByRegNr()
+        {
+            if (GetAvailableSpaces() == Spaces)
+                throw new ArgumentException($"Garaget {Name} är tomt!");
             //Get vehicle registration No.
             Console.WriteLine("Ange registreringsnumret på fordonet du vill checka ut:");
             string? regNo = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
-            if (String.IsNullOrEmpty(regNo))
-                throw new ArgumentException("Ange ett giltigt registreringsnummer!"); //hantera while.. i anropet
+            while (String.IsNullOrEmpty(regNo))
+            {
+                Console.WriteLine("Ange ett giltigt registreringsnummer!"); 
+                regNo = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
+            }
             //Search for vehicle in garage
             bool match = false;
-            for (int i = 0; i < Spaces; i++) {
+            for (int i = 0; i < Spaces; i++)
+            {
                 if (CheckedInVehicles[i] is not null)
                 {
                     if (regNo == CheckedInVehicles[i].RegNr.ToUpper())
-                    { 
+                    {
                         match = true;
-                        Console.WriteLine("-----------------------------------------------------------------");
-                        Console.WriteLine($"| Din {CheckedInVehicles[i].Type} med regNr {regNo} har blivit utcheckat från {Name} |");
-                        Console.WriteLine("-----------------------------------------------------------------\n");
-                        CheckedInVehicles[i] = null;
-                        break; }
+                        return i;
+                    }
                 }
             }
             if (!match)
-            {
-                Console.WriteLine($"!! Ditt fordon {regNo} finns inte i det här garaget!!\n");
-            }
+                throw new ArgumentException($"!! Ditt fordon {regNo} finns inte i det här garaget!!\n");
 
+            throw new ArgumentException("Unknown error in SearchByRegNr()");
         }
         public void ListParkedVehicles()
         {

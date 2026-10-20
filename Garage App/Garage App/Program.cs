@@ -1,5 +1,6 @@
 ﻿using Garage_App;
 using System.ComponentModel.Design;
+using System.Xml.Linq;
 var MainMenu = new Main()
 {
     WelcomeMessage = "************** Välkommen till Epic Garage App! ***************\n",
@@ -24,11 +25,33 @@ while (programOn)
                 Garage? newGarage = MainMenu.ExecuteCreateNewGarageSelection();
                 if (newGarage != null)
                     myGarages.Add(newGarage);
+                Console.WriteLine("Vill du populera garaget direkt? (y/n)");
+                string userResponse = Console.ReadLine().Trim().ToLower();
+                while (userResponse != "y" && userResponse != "n")
+                {
+                    Console.WriteLine("Du måste ange 'y' eller 'n'!");
+                    userResponse = Console.ReadLine().Trim().ToLower();
+                }
+                if (userResponse == "n")
+                    break;
+                else
+                {
+                    Console.WriteLine($"Hur många fordon vill du populera garaget med? Max: {newGarage.Spaces}!");
+                    int initPop;
+                    while (!int.TryParse(Console.ReadLine().Trim(), out initPop) || initPop <= 0 || initPop > newGarage.Spaces)
+                        Console.WriteLine("Du måste ange ett giltigt antal!");
+                    if (newGarage != null)
+                    {
+                        for (int i=0; i<initPop; i++)
+                            CheckIn(newGarage);
+                    }
+                    Console.WriteLine("Då har du populerat klart ditt garage!");
+                }
                 break;
             }
 
         case "2":
-            if (myGarages.Count == 0) { Console.WriteLine("Du har inga garage än!"); break; }
+            if (myGarages.Count == 0) { Console.WriteLine("!! Du har inga garage än! !!"); break; }
             var selectedGarage = SelectGarage(myGarages);
             RunGarageMenu(selectedGarage);
             break;
@@ -85,13 +108,13 @@ static void RunGarageMenu(Garage selectedGarage)
                 CheckIn(selectedGarage);
                 break;
             case "2":
-                CheckOut(selectedGarage);
+                selectedGarage.CheckOut();
                 break;
             case "3":
                 selectedGarage.ListParkedVehicles();
                 break;
             case "4":
-                Console.WriteLine("Du angav 4");
+                RunSearchMenu(selectedGarage);
                 break;
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
@@ -101,12 +124,49 @@ static void RunGarageMenu(Garage selectedGarage)
 
 }
 
+static void RunSearchMenu(Garage selectedGarage)
+{
+    var searchMenu = new Menu()
+    {
+        WelcomeMessage = $"************** Vad vill du söka efter i \"{selectedGarage.Name}\"? **************\n",
+        NrMenuOptions = 3,
+        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Sök på registreringsskylt\t", "2: Fri söktext\n" }
+    };
+
+    bool MenuOn = true;
+    while (MenuOn)
+    {
+        Console.WriteLine(searchMenu.WelcomeMessage);
+        searchMenu.DisplayOptions();
+
+        switch (Console.ReadLine())
+        {
+            case "0":
+                MenuOn = false;
+                break;
+            case "1":
+                break;
+  /*          case "2":
+                CheckOut(selectedGarage);
+                break;
+            case "3":
+                selectedGarage.ListParkedVehicles();
+                break;
+            case "4":
+                RunSearchMenu();
+                break;*/
+            default:
+                Console.WriteLine("Ange ett giltigt alternativ!");
+                break;
+        }
+    }
+}
 static void CheckIn(Garage garage)
 {
     int availableSpaces = garage.GetAvailableSpaces();
     if (availableSpaces > 0)
     {
-        Console.WriteLine("Vilket typ av fordon vill du checka in?\n1: Motorcycle\t2: Airplane\t3: Car\t4: Bus\t5: Boat\t0: Exit"); //fyll på här när nya Vehicleklasser skapats
+        Console.WriteLine("Vilket typ av fordon vill du checka in?\n1: Motorcykel\t2: Flygplan\t3: Bil\t4: Buss\t5: Båt\t0: Avbryt"); //fyll på här när nya Vehicleklasser skapats
         bool userAnswerSuccess = false;
         string userChoice;
         while (!userAnswerSuccess)
@@ -297,19 +357,6 @@ static double ValidateLength()
             Console.WriteLine("Du måste ange en giltig längd!");
     }
 }
-static void CheckOut(Garage garage)
-{
-    bool requireAnswer = true;
-    while (requireAnswer)
-    {
-        try {
-            garage.CheckOut();
-            requireAnswer = false;
-        }
-        catch (Exception ex) {
-            Console.WriteLine(ex.Message);
-        }
-    }
-}
+
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
@@ -37,7 +38,7 @@ namespace Garage_App
         {
             //Get garage name
             Console.WriteLine("(Tryck 9 för att komma tillbaka till huvudmenyn)\nNamnge ditt garage:");
-            string? name = Console.ReadLine();
+            string? name = Console.ReadLine().Trim().Replace("  ", " ");
             while (String.IsNullOrEmpty(name)) {
                 Console.WriteLine("Garaget måste ha ett namn!");
                 name = Console.ReadLine();
@@ -51,7 +52,7 @@ namespace Garage_App
                     Console.WriteLine("Du måste ange ett giltigt antal!");
                 //Confirm amount of spaces
                 Console.WriteLine($"Du har angivit {parkingSpaces} parkeringsplatser. Stämmer det? (y/n)");
-                string? confirmationResponse = Console.ReadLine();
+                string? confirmationResponse = Console.ReadLine().Trim();
                 if (confirmationResponse == "n")
                 {
                     Console.WriteLine($"Ange hur många parkeringsplatser som finns i {name}");
