@@ -1,1 +1,20 @@
-"# Garage-app"  initgit add README.mdgit commit -m "first commit"git branch -M maingit remote add origin https://github.com/johannaOS/Garage-app.gitgit push -u origin main
+Garage app version 1 med arrayer.
+Finns implementerat:
+Nivå 1: Huvudmeny
+   - Skapa ett nytt garage (inkl populera det direkt)
+   - Hantera ett av de befintliga garagen
+Nivå 2: GarageMeny
+   - Checka in
+   - Checka ut
+   - Lista alla fordon
+   - Sök bland fordon
+Nivå 3: Sök bland fordon (i ett garage)
+   - Sök efter registreringsnummer
+   - Övrigt sök
+Nivå 4: Övrigt sök (sök bland egenskaper i Vehicle-klassen)
+   
+Saknas i implementationen:
+* Nivå 1:
+   - Bug: UI:t varnar inte vid inmatning av samma regnr, men garaget populeras inte om regnumret redan finns)
+* Nivå 4:
+   - Kan bara söka på en egenskap, inte t ex egenskap 1 && egenskap 2
