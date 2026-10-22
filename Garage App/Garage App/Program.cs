@@ -1,6 +1,8 @@
 ﻿using Garage_App;
+using System;
 using System.ComponentModel.Design;
 using System.Xml.Linq;
+
 var MainMenu = new Main()
 {
     WelcomeMessage = "************** Välkommen till Epic Garage App! ***************\n",
@@ -83,7 +85,6 @@ static Garage SelectGarage(List<Garage> myGarages)
         }
     }
 }
-
 static void RunGarageMenu(Garage selectedGarage)
 {
     var garageMenu = new Menu()
@@ -124,7 +125,6 @@ static void RunGarageMenu(Garage selectedGarage)
     }
 
 }
-
 static void RunSearchMenu(Garage selectedGarage)
 {
     //Kolla att garaget inte är tomt
@@ -150,9 +150,7 @@ static void RunSearchMenu(Garage selectedGarage)
                 MenuOn = false;
                 break;
             case "1":
-                try {
-                    selectedGarage.SearchByRegNr(); }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
+                //Sök på registreringsskylt
                 break;
             case "2":
                 RunSearchInVehiclesMenu(selectedGarage);
@@ -172,6 +170,7 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
         MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Registreringsnummer\t", "2: Färg\t", "3: Parkeringsrutor\t", "4: Drivmedel\n" }
     };
 
+    var searchResult = new Vehicle[selectedGarage.Spaces - selectedGarage.GetAvailableSpaces()];
     bool MenuOn = true;
     while (MenuOn)
     {
@@ -186,34 +185,12 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
             case "1":
                 // T ex alla registreringsnummer som innehåller "f"
                 var searchRegResult = selectedGarage.SearchInRegNr();
-                if (searchRegResult.Length == 0)
-                {
-                    Console.WriteLine("Din sökning gav ingen match!\n");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Dina matchningar:");
-                    foreach (var item in searchRegResult)
-                        Console.WriteLine(item.Type + ": " + item.RegNr);
-                    Console.WriteLine();
-                    break;
-                }
+                AddToSearchResult(searchResult, searchRegResult);
+                break;
             case "2":
                 var searchColorResult = selectedGarage.SearchColor();
-                if (searchColorResult.Length == 0)
-                {
-                    Console.WriteLine("Din sökning gav ingen match!\n");
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Dina matchningar:");
-                    foreach (var item in searchColorResult)
-                        Console.WriteLine(item.Type + ": " + item.RegNr);
-                    Console.WriteLine();
-                    break;
-                }
+                AddToSearchResult(searchResult, searchColorResult);
+                break;
   /*          case "3":
                 //Metod för att få färg
                 break;
@@ -232,66 +209,49 @@ static void CheckIn(Garage garage)
     if (availableSpaces > 0)
     {
         Console.WriteLine("Vilket typ av fordon vill du checka in?\n1: Motorcykel\t2: Flygplan\t3: Bil\t4: Buss\t5: Båt\t0: Avbryt"); //fyll på här när nya Vehicleklasser skapats
-        bool userAnswerSuccess = false;
         string userChoice;
-        while (!userAnswerSuccess)
+        while (true)
         {
             userChoice = Console.ReadLine().Trim();
-            switch (userChoice)
+            if (userChoice == "0")
+                break;
+            else if (new string[] {"1", "2", "3", "4", "5"}.Contains(userChoice))
             {
-                case "0":
-                    userAnswerSuccess = true;
-                    break;
-                case "1":
-                    Console.WriteLine("Låt oss checka in din mc!");
+                try
+                {
                     garage.CheckInVehicle(
-                        CreateVehicle(userChoice)
-                        );
-                    userAnswerSuccess = true;
-                    break;
-                case "2":
-                    Console.WriteLine("Låt oss checka in ditt flygplan!");
-                    garage.CheckInVehicle(
-                        CreateVehicle(userChoice)
-                        );
-                    userAnswerSuccess = true;
-                    break;
-                case "3":
-                    Console.WriteLine("Låt oss checka in din bil!");
-                    garage.CheckInVehicle(
-                        CreateVehicle(userChoice)
-                        );
-                    userAnswerSuccess = true;
-                    break;
-                case "4":
-                    Console.WriteLine("Låt oss checka in din buss!");
-                    garage.CheckInVehicle(
-                        CreateVehicle(userChoice)
-                        );
-                    userAnswerSuccess = true;
-                    break;
-                case "5":
-                    Console.WriteLine("Låt oss checka in din båt!");
-                    garage.CheckInVehicle(
-                        CreateVehicle(userChoice)
-                        );
-                    userAnswerSuccess = true;
-                    break;
-                default:
-                    Console.WriteLine("Ange ett giltigt val!");
-                    break;
+                    CreateVehicle(userChoice, garage)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                break;
             }
+            else
+                Console.WriteLine("Ange ett giltigt val!");            
         }
     }
+    else
+        throw new ArgumentException("Det här garaget är fullt!");
 }
 
-static Vehicle CreateVehicle(string choice)
+static Vehicle CreateVehicle(string choice, Garage garage)
 {
     switch (choice)
     {
         case "1": //motorcykel
             {
-                string regNr = ValidateRegNr();
+                string regNr;
+                try
+                {
+                    regNr = ValidateRegNr(garage);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
                 string color = ValidateColor();
                 int? nrOfWheels = ValidateNrOfWheels();
 
@@ -301,12 +261,22 @@ static Vehicle CreateVehicle(string choice)
                     var motorcycle = new MotorCycle(regNr, color, nrOfWheels);
                     return motorcycle;
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
-                break;
+                catch (Exception ex) 
+                { 
+                    throw new ArgumentException(ex.Message); 
+                }
             }
         case "2": //flygplan
             {
-                string regNr = ValidateRegNr();
+                string regNr;
+                try
+                {
+                    regNr = ValidateRegNr(garage);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
                 string color = ValidateColor();
                 double length = ValidateLength();
 
@@ -315,12 +285,22 @@ static Vehicle CreateVehicle(string choice)
                     var airplane = new Airplane(regNr, color, length);
                     return airplane;
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
-                break;
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
             }
         case "3": //bil
             {
-                string regNr = ValidateRegNr();
+                string regNr;
+                try
+                {
+                    regNr = ValidateRegNr(garage);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
                 string color = ValidateColor();
 
                 try
@@ -328,12 +308,22 @@ static Vehicle CreateVehicle(string choice)
                     var car = new Car(regNr, color);
                     return car;
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
-                    break;
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
             }
         case "4": //buss
             {
-                string regNr = ValidateRegNr();
+                string regNr;
+                try
+                {
+                    regNr = ValidateRegNr(garage);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
                 string color = ValidateColor();
 
                 try
@@ -341,12 +331,22 @@ static Vehicle CreateVehicle(string choice)
                     var bus = new Bus(regNr, color);
                     return bus;
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
-                break;
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
             }
         case "5": //båt
             {
-                string regNr = ValidateRegNr();
+                string regNr;
+                try
+                {
+                    regNr = ValidateRegNr(garage);
+                }
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
                 string color = ValidateColor();
 
                 try
@@ -354,29 +354,33 @@ static Vehicle CreateVehicle(string choice)
                     var boat = new Boat(regNr, color);
                     return boat;
                 }
-                catch (Exception ex) { Console.WriteLine(ex.Message); }
-                break;
+                catch (Exception ex)
+                {
+                    throw new ArgumentException(ex.Message);
+                }
             }
         default:
             break;
     }
-    return null;
+    throw new ArgumentException("Det här fordonet finns redan i garaget!");
 }
 
-static string ValidateRegNr()
+static string ValidateRegNr(Garage garage)
 {
     Console.Write("Ange registreringsnummer (obligatoriskt): ");
-    while (true)
-    {
-        string _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
-        try
-        {
-            if (String.IsNullOrEmpty(_regNr) || _regNr.Length > 12)
-                throw new ArgumentException("Du måste ange ett giltigt registreringsnummer!");
-            return _regNr;
-        }
-        catch (Exception ex) { Console.WriteLine(ex.Message); }
+    string _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
+    while (String.IsNullOrEmpty(_regNr) || _regNr.Length > 12) 
+    { 
+        Console.WriteLine("Du måste ange ett giltigt registreringsnummer!");
+        _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
     }
+    //Check that _regNr is unique (in garage)
+    int dummyIndex = -1;
+    if (garage.SearchByRegNr(_regNr, ref dummyIndex))
+        throw new ArgumentException("Det här fordonet finns redan i garaget!");
+    else
+        return _regNr;
+
 }
 
 static string ValidateColor()
@@ -420,6 +424,34 @@ static double ValidateLength()
             return length;
         else
             Console.WriteLine("Du måste ange en giltig längd!");
+    }
+}
+static void AddToSearchResult(Vehicle[] oldSearchResult, Vehicle[] newSearchResult)
+{
+    if (newSearchResult.Length == 0)
+    {
+        Console.WriteLine("Din sökning gav ingen match!\n");
+    }
+    else
+    {
+        if (oldSearchResult.Count(v => v != null) > 0) //kolla om searchResult har Vehicles i sig
+        {
+            foreach (var v in oldSearchResult)
+            {
+                if (!oldSearchResult.Any(s => s.RegNr == v.RegNr)) //Check if vehicle isn't already there
+                    oldSearchResult[Array.IndexOf(oldSearchResult, null)] = v; //put vehicle in first empty place
+            }
+        }
+        else //SearchResult är tom
+        {
+            foreach (var v in newSearchResult)
+                oldSearchResult[Array.IndexOf(oldSearchResult, null)] = v; //put vehicle in first empty place
+        }
+        Console.WriteLine("Dina matchningar:");
+        foreach (var v in oldSearchResult)
+            Console.WriteLine(v.Type + ": " + v.RegNr);
+
+        Console.WriteLine();
     }
 }
 

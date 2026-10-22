@@ -30,23 +30,11 @@ namespace Garage_App
 
         public void CheckInVehicle(Vehicle vehicle)
         {
-            //check that vehicle isn't already in since all vehicle registration numbers are unique
-            bool isUnique = true;
+            if (vehicle is null)
+                throw new ArgumentException("Vehicle cannot be null.");
+            //kolla att fordonet inte redan finns
             int index = -1;
-            for (int i = 0; i < Spaces; i++)
-            {
-                if (CheckedInVehicles[i] is not null)
-                {
-                    if (CheckedInVehicles[i].RegNr == vehicle.RegNr)
-                    {
-                        isUnique = false;
-                        index = i;
-                        break;
-                    }
-                }
-            }
-
-            if (isUnique)
+            if (!SearchByRegNr(vehicle.RegNr, ref index)) //fordonet finns inte i garaget
             {
                 int index2 = Array.IndexOf(CheckedInVehicles, null);
                 CheckedInVehicles[index2] = vehicle;
@@ -60,22 +48,6 @@ namespace Garage_App
 
         public void CheckOut()
         {
-            try
-            {
-                int matchIndex = SearchByRegNr();
-                Console.WriteLine("-----------------------------------------------------------------");
-                Console.WriteLine($"| Din {CheckedInVehicles[matchIndex].Type} med regNr {CheckedInVehicles[matchIndex].RegNr} har blivit utcheckat från {Name} |");
-                Console.WriteLine("-----------------------------------------------------------------\n");
-                CheckedInVehicles[matchIndex] = null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-        }
-        public int SearchByRegNr()
-        {
             if (GetAvailableSpaces(false) == Spaces)
                 throw new ArgumentException($"Garaget {Name} är tomt!");
             //Get vehicle registration No.
@@ -83,26 +55,42 @@ namespace Garage_App
             string? regNo = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
             while (String.IsNullOrEmpty(regNo))
             {
-                Console.WriteLine("Ange ett giltigt registreringsnummer!"); 
+                Console.WriteLine("Ange ett giltigt registreringsnummer!");
                 regNo = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
             }
+            //Checka ut fordonet
+            int matchIndex = -1;
+            if (SearchByRegNr(regNo, ref matchIndex))
+            {
+                Console.WriteLine("-----------------------------------------------------------------");
+                Console.WriteLine($"| Din {CheckedInVehicles[matchIndex].Type} med regNr {CheckedInVehicles[matchIndex].RegNr} har blivit utcheckat från {Name} |");
+                Console.WriteLine("-----------------------------------------------------------------\n");
+                CheckedInVehicles[matchIndex] = null;
+            }
+            else
+            {
+                Console.WriteLine($"Det här fordonet finns inte i {Name}");
+            }
+
+        }
+        public bool SearchByRegNr(string regNr, ref int index)
+        {
+            regNr = regNr.ToUpper();
             //Search for vehicle in garage
             bool match = false;
             for (int i = 0; i < Spaces; i++)
             {
                 if (CheckedInVehicles[i] is not null)
                 {
-                    if (regNo == CheckedInVehicles[i].RegNr.ToUpper())
+                    if (regNr == CheckedInVehicles[i].RegNr)
                     {
+                        index = i;
                         match = true;
-                        return i;
+                        return match;
                     }
                 }
             }
-            if (!match)
-                throw new ArgumentException($"!! Ditt fordon {regNo} finns inte i det här garaget!!\n");
-
-            throw new ArgumentException("Unknown error in SearchByRegNr()");
+            return match;
         }
         public void ListParkedVehicles()
         {
