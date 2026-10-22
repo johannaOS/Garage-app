@@ -126,25 +126,17 @@ namespace Garage_App
 
         }
 
-        public Vehicle[] SearchInRegNr()
+        public Vehicle[] SearchInRegNr(string _regNr)
         {
             if (CheckedInVehicles.Count(v => v != null) == 0)
                 throw new ArgumentException($"Det finns inga fordon i {Name}");
-            //Hämta sökfras
-            Console.Write("Ange din sökfras: ");
-            string userInput = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
-            while (String.IsNullOrEmpty(userInput))
-            {
-                Console.WriteLine("Ange giltigt registreringsnummer!");
-                userInput = Console.ReadLine().Trim().ToUpper().Replace(" ", "");
-            }
             // Kolla matchning
             var ResultList = new Vehicle[Spaces - GetAvailableSpaces(false)]; //largest possible array
             int index = 0;
             foreach (Vehicle v in CheckedInVehicles)
             {
                 if (v is not null){
-                    if (v.RegNr.Contains(userInput))
+                    if (v.RegNr.Contains(_regNr))
                     {
                         ResultList[index] = v;
                         index++;

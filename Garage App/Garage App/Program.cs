@@ -44,10 +44,17 @@ while (programOn)
                         Console.WriteLine("Du måste ange ett giltigt antal!");
                     if (newGarage != null)
                     {
-                        for (int i=0; i<initPop; i++)
-                            CheckIn(newGarage);
+                        int count = 0;
+                        while (count < initPop)
+                        {
+                            try
+                            {if (CheckIn(newGarage))
+                                    count++;
+                            }
+                            catch (Exception ex) { Console.WriteLine(ex.Message); }
+                        }
                     }
-                    Console.WriteLine("Då har du populerat klart ditt garage!");
+                    Console.WriteLine("Då har du populerat klart ditt garage!\n");
                 }
                 break;
             }
@@ -106,7 +113,11 @@ static void RunGarageMenu(Garage selectedGarage)
                 MenuOn = false;
                 break;
             case "1":
-                CheckIn(selectedGarage);
+                try
+                {
+                    CheckIn(selectedGarage);
+                }                
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
                 break;
             case "2":
                 selectedGarage.CheckOut();
@@ -150,6 +161,13 @@ static void RunSearchMenu(Garage selectedGarage)
                 MenuOn = false;
                 break;
             case "1":
+                Console.WriteLine("Ange registreringsnumret du vill söka på:");
+                string regNr = GetRegNr();
+                int plats = -1;
+                if (selectedGarage.SearchByRegNr(regNr, ref plats))
+                    Console.WriteLine($"Fordonet finns på plats {plats}\n");
+                else
+                    Console.WriteLine("Det här fordonet finns inte i garaget!\n");
                 //Sök på registreringsskylt
                 break;
             case "2":
@@ -184,26 +202,30 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
                 break;
             case "1":
                 // T ex alla registreringsnummer som innehåller "f"
-                var searchRegResult = selectedGarage.SearchInRegNr();
+                Console.Write("Skriv din sökfras: ");
+                string searchRegNr = GetRegNr();
+                var searchRegResult = selectedGarage.SearchInRegNr(searchRegNr);
                 AddToSearchResult(searchResult, searchRegResult);
                 break;
             case "2":
                 var searchColorResult = selectedGarage.SearchColor();
                 AddToSearchResult(searchResult, searchColorResult);
                 break;
-  /*          case "3":
+            case "3":
+                Console.WriteLine("Den här funktionen finns inte än!");
                 //Metod för att få färg
                 break;
             case "4":
+                Console.WriteLine("Den här funktionen finns inte än!");
                 //Metod för att få Parkeringsrutor
-                break;*/
+                break;
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
                 break;
         }
     }
 }
-static void CheckIn(Garage garage)
+static bool CheckIn(Garage garage)
 {
     int availableSpaces = garage.GetAvailableSpaces();
     if (availableSpaces > 0)
@@ -214,7 +236,7 @@ static void CheckIn(Garage garage)
         {
             userChoice = Console.ReadLine().Trim();
             if (userChoice == "0")
-                break;
+                return false;
             else if (new string[] {"1", "2", "3", "4", "5"}.Contains(userChoice))
             {
                 try
@@ -222,12 +244,13 @@ static void CheckIn(Garage garage)
                     garage.CheckInVehicle(
                     CreateVehicle(userChoice, garage)
                     );
+                    return true;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
+                    return false;
                 }
-                break;
             }
             else
                 Console.WriteLine("Ange ett giltigt val!");            
@@ -368,19 +391,24 @@ static Vehicle CreateVehicle(string choice, Garage garage)
 static string ValidateRegNr(Garage garage)
 {
     Console.Write("Ange registreringsnummer (obligatoriskt): ");
+    string regNr = GetRegNr();
+    //Check that _regNr is unique (in garage)
+    int dummyIndex = -1;
+    if (garage.SearchByRegNr(regNr, ref dummyIndex))
+        throw new ArgumentException("Det här fordonet finns redan i garaget!");
+    else
+        return regNr;
+
+}
+static string GetRegNr()
+{
     string _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
-    while (String.IsNullOrEmpty(_regNr) || _regNr.Length > 12) 
-    { 
+    while (String.IsNullOrEmpty(_regNr) || _regNr.Length > 12)
+    {
         Console.WriteLine("Du måste ange ett giltigt registreringsnummer!");
         _regNr = Console.ReadLine().Trim().Replace(" ", "").ToUpper();
     }
-    //Check that _regNr is unique (in garage)
-    int dummyIndex = -1;
-    if (garage.SearchByRegNr(_regNr, ref dummyIndex))
-        throw new ArgumentException("Det här fordonet finns redan i garaget!");
-    else
-        return _regNr;
-
+    return _regNr;
 }
 
 static string ValidateColor()
