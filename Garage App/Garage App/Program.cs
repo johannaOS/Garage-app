@@ -185,11 +185,12 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
     {
         WelcomeMessage = $"************** Välj vad du vill söka på i \"{selectedGarage.Name}\" **************\n",
         NrMenuOptions = 3,
-        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Registreringsnummer\t", "2: Färg\t", "3: Parkeringsrutor\t", "4: Drivmedel\n" }
+        MenuOptions = new List<string> { "0: Gå tillbaka\t", "1: Registreringsnummer\t", "2: Färg\t", "3: Parkeringsrutor\t", "4: Drivmedel\t", "9: Rensa sökfras\n" }
     };
 
     var searchResult = new Vehicle[selectedGarage.Spaces - selectedGarage.GetAvailableSpaces()];
     bool MenuOn = true;
+    string searchPhrase = "";
     while (MenuOn)
     {
         Console.WriteLine(searchMenu.WelcomeMessage);
@@ -206,10 +207,16 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
                 string searchRegNr = GetRegNr();
                 var searchRegResult = selectedGarage.SearchInRegNr(searchRegNr);
                 AddToSearchResult(searchResult, searchRegResult);
+                searchPhrase += " + " + searchRegNr;
+                Console.WriteLine($"Resultatet visar sök på: {searchPhrase}");
                 break;
             case "2":
-                var searchColorResult = selectedGarage.SearchColor();
+                Console.Write("Skriv din sökfras: ");
+                string userInput = GetSearchPhrase();
+                var searchColorResult = selectedGarage.SearchColor(userInput);
                 AddToSearchResult(searchResult, searchColorResult);
+                searchPhrase += userInput;
+                Console.WriteLine($"Resultatet visar sök på: {searchPhrase}");
                 break;
             case "3":
                 Console.WriteLine("Den här funktionen finns inte än!");
@@ -218,6 +225,9 @@ static void RunSearchInVehiclesMenu(Garage selectedGarage)
             case "4":
                 Console.WriteLine("Den här funktionen finns inte än!");
                 //Metod för att få Parkeringsrutor
+                break;
+            case "9":
+                searchPhrase = "";
                 break;
             default:
                 Console.WriteLine("Ange ett giltigt alternativ!");
@@ -462,11 +472,21 @@ static void AddToSearchResult(Vehicle[] oldSearchResult, Vehicle[] newSearchResu
     }
     else
     {
+        bool duplicate = false;
         if (oldSearchResult.Count(v => v != null) > 0) //kolla om searchResult har Vehicles i sig
         {
-            foreach (var v in oldSearchResult)
+            foreach (var v in newSearchResult)
             {
-                if (!oldSearchResult.Any(s => s.RegNr == v.RegNr)) //Check if vehicle isn't already there
+                duplicate = false; //reset if true
+                foreach(var v2 in oldSearchResult)
+                {
+                    if (v2 is not null)
+                    {
+                        if (v.RegNr == v2.RegNr) //Check if vehicle isn't already there
+                            duplicate = true;
+                    }
+                }
+                if (duplicate == false)
                     oldSearchResult[Array.IndexOf(oldSearchResult, null)] = v; //put vehicle in first empty place
             }
         }
@@ -477,11 +497,25 @@ static void AddToSearchResult(Vehicle[] oldSearchResult, Vehicle[] newSearchResu
         }
         Console.WriteLine("Dina matchningar:");
         foreach (var v in oldSearchResult)
-            Console.WriteLine(v.Type + ": " + v.RegNr);
-
+        {
+            if (v is not null)
+                Console.WriteLine(v.Type + ": " + v.RegNr);
+        }
         Console.WriteLine();
     }
 }
 
+static string GetSearchPhrase()
+{
+    //Hämta sökfras
+    Console.Write("Ange din sökfras: ");
+    string userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
+    while (String.IsNullOrEmpty(userInput))
+    {
+        Console.WriteLine("Ange giltig sökfras!");
+        userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
+    }
+    return userInput;
+}
 
 

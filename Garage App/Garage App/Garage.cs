@@ -145,18 +145,11 @@ namespace Garage_App
             }
             return ResultList[0..index];
         }
-        public Vehicle[] SearchColor()
+        public Vehicle[] SearchColor(string userInput)
         {
             if (CheckedInVehicles.Count(v => v != null) == 0)
                 throw new ArgumentException($"Det finns inga fordon i {Name}");
-            //Hämta sökfras
-            Console.Write("Ange din sökfras: ");
-            string userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
-            while (String.IsNullOrEmpty(userInput))
-            {
-                Console.WriteLine("Ange giltig sökfras!");
-                userInput = Console.ReadLine().Trim().ToLower().Replace(" ", "");
-            }
+            
             // Kolla matchning
             var ResultList = new Vehicle[Spaces - GetAvailableSpaces(false)]; //largest possible array
             int index = 0;
