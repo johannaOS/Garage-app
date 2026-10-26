@@ -50,6 +50,8 @@ while (programOn)
                             try
                             {if (CheckIn(newGarage))
                                     count++;
+                             else
+                                 break;
                             }
                             catch (Exception ex) { Console.WriteLine(ex.Message); }
                         }
